@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: Unlicensed
 
 pragma solidity ^0.8.0;
 
@@ -9,19 +9,35 @@ interface IERC721 {
 contract Escrow {
     address public nftAddress;
     uint256 public nftID; 
+    uint256 public purchasePrice;
+    uint256 public escrowAmount;
     address payable public seller;
     address payable public buyer;
+    address public inspector;
+    address public lender;
 
     constructor(
         address _nftAddress, 
         uint256 _nftID,
+        uint256 _purchasePrice,
+        uint256 _escrowAmount,
         address payable _seller, 
-        address payable _buyer
+        address payable _buyer,
+        address _inspector,
+        address _lender
     ) {
         nftAddress = _nftAddress;
         nftID = _nftID;
+        purchasePrice = _purchasePrice;
+        escrowAmount = _escrowAmount;
         seller = _seller;
-        buyer = _buyer;        
+        buyer = _buyer;
+        inspector = _inspector;
+        lender = _lender;        
+    }
+
+    function depositEarnest() public payable {
+
     }
 
     function finalizeSale() public {

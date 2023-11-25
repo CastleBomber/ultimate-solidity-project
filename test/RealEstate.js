@@ -1,17 +1,50 @@
+/**
+ * Author: CastleBomber
+ * Project: Ultimate-Solidity-Project
+ *
+ * Acknowledgements: Ultimate Solidity Youtube Tutorial: DeFi, Flash Loans, Hacking
+ *
+ * Notes:
+ * https://github.com/nvm-sh/nvm
+ * source ~/.bashrc
+ * nvm install 16.14.0
+ * Hardhat Runtime Environment (HRE)
+ * Ethers v6 vs v5
+ *
+ * Shortcuts:
+ *  VS Code:
+ *      code folding: cmd+k, cmd+2
+ *      code expanding: cmd+k, release, cmd+j
+ * 	    c++ VS Code clang-formatter: shift+alt+f
+ *      Go to definition - F12
+ *      Command pallete - shtift+cmd+p
+ */
+
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("Real Estate", () => {
+const tokens = (n) => {
+  return ethers.utils.parseUnits(n.toString(), "ether");
+};
+
+const ether = tokens;
+
+describe("RealEstate", () => {
+  //let accounts;
   let realEstate, escrow;
-  let deployer, seller;
+  let deployer, seller, buyer, inspector, lender;
   let nftID = 1;
+  let purchasePrice = ether(100);
+  let escrowAmount = ether(20);
 
   beforeEach(async () => {
     // Setup accounts
-    accounts = await ethers.getSigners();
+    accounts = await ethers.getSigners(); // Represents an ETH account
     deployer = accounts[0];
     seller = deployer;
     buyer = accounts[1];
+    inspector = accounts[2];
+    lender = accounts[3];
 
     // Load Contracts
     const RealEstate = await ethers.getContractFactory("RealEstate");
@@ -22,8 +55,12 @@ describe("Real Estate", () => {
     escrow = await Escrow.deploy(
       realEstate.address,
       nftID,
+      purchasePrice,
+      escrowAmount,
       seller.address,
-      buyer.addres
+      buyer.addres,
+      inspector.address,
+      lender.address
     );
 
     // Seller approves NFT
@@ -40,9 +77,16 @@ describe("Real Estate", () => {
   });
 
   describe("Selling real estate", async () => {
+    let balance, transaction;
+
     it("executes a successful transactions", async () => {
       // Expects: Seller to be NFT home owner before sale
       expect(await realEstate.ownerOf(nftID)).to.equal(seller.address);
+
+      // Buyer deposits earnest
+      transaction = await escrow
+        .connect(buyer)
+        .depositEarnest({ value: escrowAmount });
 
       // Finalize sale
       transaction = await escrow.connect(buyer).finalizeSale();
