@@ -11,6 +11,11 @@
  * Hardhat Runtime Environment (HRE)
  * Ethers v6 vs v5
  *
+ * Progress:
+ * ~01:49:00
+ * npx hardhat test test/RealEstate.js [Failed]
+ * "Error: invalid address or ENS name (argument="name", value=undefined, code=INVALID_ARGUMENT, version=contracts/5.7.0)"
+ *
  * Shortcuts:
  *  VS Code:
  *      code folding: cmd+k, cmd+2
@@ -87,6 +92,10 @@ describe("RealEstate", () => {
       transaction = await escrow
         .connect(buyer)
         .depositEarnest({ value: escrowAmount });
+
+      // Check escrow balance
+      balance = await escrow.getBalance();
+      console.log("escrow balance: ", ethers.utils.formatEther(balance));
 
       // Finalize sale
       transaction = await escrow.connect(buyer).finalizeSale();
